@@ -1,4 +1,4 @@
-# main.py
+
 import sys
 sys.path.append(r'F:\file\University\object\Mask\models')
 sys.path.append(r'F:\file\University\object\Mask\models\research')
@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import cv2
 
-# ------------------ TFOD API PATH ------------------
+
 
 
 from object_detection.utils import dataset_util
@@ -24,18 +24,18 @@ from object_detection.utils import config_util
 
 print("TFOD API ready!")
 
-# ------------------ Paths ------------------
+
 image_dir = 'Data/images'
 annotations_dir = 'Data/annotations'
 train_record_path = 'Data/train.record'
 label_map_path = 'Data/label_map.pbtxt'
-pipeline_config_path = 'Data/ssd_mobilenet_v2.config'  # bạn chuẩn bị config từ TFOD Model Zoo
+pipeline_config_path = 'Data/ssd_mobilenet_v2.config'  
 model_dir = 'Data/model'
 
-# ------------------ Labels ------------------
+
 label_map = {'with_mask': 1, 'without_mask': 2, 'mask_weared_incorrect': 3}
 
-# ------------------ Create label_map.pbtxt ------------------
+
 with open(label_map_path, 'w') as f:
     for name, idx in label_map.items():
         f.write("item {\n")
@@ -44,7 +44,7 @@ with open(label_map_path, 'w') as f:
         f.write("}\n")
 print(f"Label map created at {label_map_path}")
 
-# ------------------ Create TFExample ------------------
+
 def create_tf_example(xml_file):
     tree = ET.parse(xml_file)
     root = tree.getroot()
@@ -87,7 +87,7 @@ def create_tf_example(xml_file):
     }))
     return tf_example
 
-# ------------------ Generate TFRecord ------------------
+
 writer = tf.io.TFRecordWriter(train_record_path)
 for xml_file in glob.glob(os.path.join(annotations_dir, '*.xml')):
     tf_example = create_tf_example(xml_file)
@@ -95,7 +95,7 @@ for xml_file in glob.glob(os.path.join(annotations_dir, '*.xml')):
 writer.close()
 print('TFRecord created successfully!')
 
-# ------------------ Build SSD model template ------------------
+
 if not os.path.exists(pipeline_config_path):
     print("Pipeline config file not found. Please download SSD config from TFOD Model Zoo and place it in Data/")
 else:
@@ -104,15 +104,15 @@ else:
     detection_model = model_builder.build(model_config=model_config, is_training=True)
     print("SSD model built. Ready for training template!")
 
-# ------------------ Inference test template ------------------
-# Chạy thử trên 1 ảnh đầu tiên
+
+
 test_images = glob.glob(os.path.join(image_dir, '*.png'))
 if len(test_images) > 0:
     image_path = test_images[0]
     image_np = cv2.imread(image_path)
     input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
     
-    # Nếu bạn đã train và export saved_model, thay đổi đường dẫn ở đây
+    
     saved_model_dir = os.path.join(model_dir, 'saved_model')
     if os.path.exists(saved_model_dir):
         detect_fn = tf.saved_model.load(saved_model_dir)
